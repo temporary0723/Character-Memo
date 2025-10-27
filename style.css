@@ -29,9 +29,9 @@
     border-radius: 16px;
     box-shadow: 0 20px 50px var(--black70a);
     width: 800px;
-    height: 85vh;
     max-width: 95vw;
-    max-height: 95vh;
+    height: auto;
+    max-height: 80vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -332,7 +332,7 @@
         width: 95vw;
         height: 94vh;
         max-width: none;
-        max-height: 94vh;
+        max-height: none;
         transform: scale(0.98);
         position: relative;
         margin: 0 auto;
@@ -377,7 +377,7 @@
     .memo-modal {
         width: 98vw;
         height: 96vh;
-        max-height: 96vh;
+        max-height: none;
         border-radius: 8px;
     }
     
