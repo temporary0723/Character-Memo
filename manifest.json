@@ -1,0 +1,11 @@
+{
+    "display_name": "캐릭터 메모",
+    "loading_order": 9,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Character Memo Extension",
+    "version": "1.0.0",
+    "homePage": ""
+}
