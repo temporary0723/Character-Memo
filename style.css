@@ -58,6 +58,32 @@
     gap: 10px;
 }
 
+/* 스왑 버튼 */
+.memo-swap-btn {
+    background: transparent !important;
+    border: 1px solid var(--SmartThemeBorderColor) !important;
+    color: var(--SmartThemeBodyColor) !important;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.memo-swap-btn:hover {
+    background-color: var(--SmartThemeQuoteColor) !important;
+    color: var(--SmartThemeBlurTintColor) !important;
+    border-color: var(--SmartThemeQuoteColor) !important;
+    transform: rotate(180deg);
+}
+
 .memo-modal-header h3 {
     margin: 0;
     font-weight: 600;
@@ -349,6 +375,12 @@
     }
     
     .memo-modal-header h3 {
+        font-size: 14px;
+    }
+    
+    .memo-swap-btn {
+        width: 32px;
+        height: 32px;
         font-size: 14px;
     }
     

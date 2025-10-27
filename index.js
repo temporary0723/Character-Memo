@@ -36,23 +36,31 @@ const MEMO_METADATA_KEY = 'character_memos_v1';
 
 // 메모 데이터 저장소
 let currentCharacterMemos = [];
+let globalMemos = [];
 
-// 현재 열린 모달
+// 현재 모달 상태
 let currentModal = null;
+let isGlobalMode = false; // 글로벌 메모 모드 여부
 
 // Extension Settings에 메모 데이터 초기화
 function initializeMemoSettings() {
     if (!extension_settings[pluginName]) {
         extension_settings[pluginName] = {
             characterMemos: {},
+            globalMemos: [],
             version: '1.0'
         };
         saveSettingsDebounced();
     }
     
-    // 기존 설정에 characterMemos가 없으면 추가
+    // 기존 설정에 필요한 키들이 없으면 추가
     if (!extension_settings[pluginName].characterMemos) {
         extension_settings[pluginName].characterMemos = {};
+        saveSettingsDebounced();
+    }
+    
+    if (!extension_settings[pluginName].globalMemos) {
+        extension_settings[pluginName].globalMemos = [];
         saveSettingsDebounced();
     }
 }
@@ -85,6 +93,26 @@ function loadCharacterMemos() {
 }
 
 /**
+ * 글로벌 메모 로드
+ */
+function loadGlobalMemos() {
+    try {
+        initializeMemoSettings();
+        
+        const savedMemos = extension_settings[pluginName].globalMemos;
+        
+        if (savedMemos && Array.isArray(savedMemos)) {
+            globalMemos = savedMemos;
+        } else {
+            globalMemos = [];
+        }
+    } catch (error) {
+        console.error('[CharacterMemo] 글로벌 메모 로드 실패:', error);
+        globalMemos = [];
+    }
+}
+
+/**
  * 현재 캐릭터의 메모 저장
  */
 function saveCharacterMemos() {
@@ -111,6 +139,24 @@ function saveCharacterMemos() {
 }
 
 /**
+ * 글로벌 메모 저장
+ */
+function saveGlobalMemos() {
+    try {
+        initializeMemoSettings();
+        
+        // Extension Settings에 글로벌 메모 저장
+        extension_settings[pluginName].globalMemos = [...globalMemos];
+        
+        // 설정 변경사항 저장
+        saveSettingsDebounced();
+        
+    } catch (error) {
+        console.error('[CharacterMemo] 글로벌 메모 저장 실패:', error);
+    }
+}
+
+/**
  * 새 메모 추가
  */
 function addMemo() {
@@ -122,8 +168,13 @@ function addMemo() {
         updatedAt: new Date().toISOString()
     };
 
-    currentCharacterMemos.push(newMemo);
-    saveCharacterMemos();
+    if (isGlobalMode) {
+        globalMemos.push(newMemo);
+        saveGlobalMemos();
+    } else {
+        currentCharacterMemos.push(newMemo);
+        saveCharacterMemos();
+    }
     
     // 모달이 열려있으면 새로고침
     refreshMemoListInModal();
@@ -141,12 +192,18 @@ function addMemo() {
  * 메모 수정
  */
 function updateMemo(memoId, title, content) {
-    const memo = currentCharacterMemos.find(m => m.id === memoId);
+    const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const memo = memos.find(m => m.id === memoId);
     if (memo) {
         memo.title = title;
         memo.content = content;
         memo.updatedAt = new Date().toISOString();
-        saveCharacterMemos();
+        
+        if (isGlobalMode) {
+            saveGlobalMemos();
+        } else {
+            saveCharacterMemos();
+        }
     }
 }
 
@@ -154,7 +211,8 @@ function updateMemo(memoId, title, content) {
  * 메모 내용 클립보드에 복사
  */
 async function copyMemoContent(memoId) {
-    const memo = currentCharacterMemos.find(m => m.id === memoId);
+    const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const memo = memos.find(m => m.id === memoId);
     if (!memo) return;
 
     try {
@@ -189,7 +247,8 @@ async function copyMemoContent(memoId) {
  * 메모 삭제
  */
 async function deleteMemo(memoId) {
-    const memo = currentCharacterMemos.find(m => m.id === memoId);
+    const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const memo = memos.find(m => m.id === memoId);
     if (!memo) return;
 
     const memoTitle = memo.title || '제목 없음';
@@ -200,10 +259,15 @@ async function deleteMemo(memoId) {
     );
 
     if (result === POPUP_RESULT.AFFIRMATIVE) {
-        const index = currentCharacterMemos.findIndex(m => m.id === memoId);
+        const index = memos.findIndex(m => m.id === memoId);
         if (index !== -1) {
-            currentCharacterMemos.splice(index, 1);
-            saveCharacterMemos();
+            memos.splice(index, 1);
+            
+            if (isGlobalMode) {
+                saveGlobalMemos();
+            } else {
+                saveCharacterMemos();
+            }
             
             // 모달 새로고침
             refreshMemoListInModal();
@@ -211,6 +275,24 @@ async function deleteMemo(memoId) {
             toastr.success('메모가 삭제되었습니다.');
         }
     }
+}
+
+/**
+ * 글로벌/캐릭터 메모 모드 전환
+ */
+function toggleMemoMode() {
+    isGlobalMode = !isGlobalMode;
+    
+    if (isGlobalMode) {
+        // 글로벌 메모 로드
+        loadGlobalMemos();
+    } else {
+        // 캐릭터 메모 로드
+        loadCharacterMemos();
+    }
+    
+    // 모달 새로고침
+    refreshMemoListInModal();
 }
 
 /**
@@ -225,10 +307,14 @@ function refreshMemoListInModal() {
     const characterName = context && context.name2 ? context.name2 : '알 수 없는 캐릭터';
     
     // 모달 헤더 업데이트
-    currentModal.find('.memo-modal-header h3').text(`${characterName}의 메모`);
+    const headerTitle = isGlobalMode ? '글로벌 메모' : `${characterName}의 메모`;
+    currentModal.find('.memo-modal-header h3').text(headerTitle);
+    
+    // 현재 모드에 따른 메모 배열 선택
+    const currentMemos = isGlobalMode ? globalMemos : currentCharacterMemos;
     
     // 새로운 메모 리스트 HTML 생성
-    const memoListHtml = currentCharacterMemos.map(memo => `
+    const memoListHtml = currentMemos.map(memo => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
@@ -250,7 +336,7 @@ function refreshMemoListInModal() {
     // 모달 바디 업데이트
     const modalBody = currentModal.find('.memo-modal-body');
     
-    if (currentCharacterMemos.length === 0) {
+    if (currentMemos.length === 0) {
         modalBody.html(`
             <button class="memo-add-button">
                 <i class="fa-solid fa-plus"></i>
@@ -289,11 +375,19 @@ function bindModalEventHandlers() {
         addMemo();
     });
     
+    // 스왑 버튼 이벤트
+    currentModal.find('.memo-swap-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMemoMode();
+    });
+    
     // 메모 제목 변경 이벤트
     currentModal.find('.memo-title-input').off('blur').on('blur', function() {
         const memoId = $(this).data('memo-id');
         const newTitle = $(this).val().trim();
-        const memo = currentCharacterMemos.find(m => m.id === memoId);
+        const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+        const memo = memos.find(m => m.id === memoId);
         
         if (memo && memo.title !== newTitle) {
             updateMemo(memoId, newTitle, memo.content);
@@ -304,7 +398,8 @@ function bindModalEventHandlers() {
     currentModal.find('.memo-content-textarea').off('blur').on('blur', function() {
         const memoId = $(this).data('memo-id');
         const newContent = $(this).val().trim();
-        const memo = currentCharacterMemos.find(m => m.id === memoId);
+        const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+        const memo = memos.find(m => m.id === memoId);
         
         if (memo && memo.content !== newContent) {
             updateMemo(memoId, memo.title, newContent);
@@ -335,10 +430,15 @@ async function createCharacterMemoModal() {
     const context = getContext();
     const characterName = context && context.name2 ? context.name2 : '알 수 없는 캐릭터';
     
-    // 현재 캐릭터의 메모 로드
-    loadCharacterMemos();
+    // 현재 캐릭터의 메모 로드 (글로벌 모드가 아닌 경우)
+    if (!isGlobalMode) {
+        loadCharacterMemos();
+    } else {
+        loadGlobalMemos();
+    }
     
-    const memoListHtml = currentCharacterMemos.map(memo => `
+    const currentMemos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const memoListHtml = currentMemos.map(memo => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
@@ -357,11 +457,16 @@ async function createCharacterMemoModal() {
         </div>
     `).join('');
 
+    const headerTitle = isGlobalMode ? '글로벌 메모' : `${characterName}의 메모`;
+    
     const modalHtml = `
         <div class="memo-modal-backdrop">
             <div class="memo-modal">
                 <div class="memo-modal-header">
-                    <h3>${characterName}의 메모</h3>
+                    <button class="memo-swap-btn" title="글로벌 메모 / 캐릭터 메모 전환">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <h3>${headerTitle}</h3>
                     <button class="memo-modal-close" title="닫기">×</button>
                 </div>
                 <div class="memo-modal-body">
@@ -369,7 +474,7 @@ async function createCharacterMemoModal() {
                         <i class="fa-solid fa-plus"></i>
                         <span>새 메모 추가</span>
                     </button>
-                    ${currentCharacterMemos.length === 0 
+                    ${currentMemos.length === 0 
                         ? `<div class="no-memos">
                             <i class="fa-solid fa-sticky-note"></i>
                             저장된 메모가 없습니다.<br>
@@ -467,6 +572,7 @@ function initializeCharacterMemo() {
     
     // 메모 데이터 로드
     loadCharacterMemos();
+    loadGlobalMemos();
     
     // 이벤트 리스너 설정
     eventSource.on(event_types.CHAT_CHANGED, handleCharacterChanged);
