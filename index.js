@@ -363,17 +363,15 @@ function refreshMemoListInModal() {
     const memoListHtml = currentMemos.map((memo, index) => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
-                <div class="memo-move-buttons">
+                <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
+                       value="${memo.title || ''}" data-memo-id="${memo.id}">
+                <div class="memo-actions">
                     <button class="memo-move-up-btn" title="위로 이동" data-memo-id="${memo.id}" ${index === 0 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-up"></i>
                     </button>
                     <button class="memo-move-down-btn" title="아래로 이동" data-memo-id="${memo.id}" ${index === currentMemos.length - 1 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
-                </div>
-                <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
-                       value="${memo.title || ''}" data-memo-id="${memo.id}">
-                <div class="memo-actions">
                     <button class="memo-copy-btn" title="내용 복사" data-memo-id="${memo.id}">
                         <i class="fa-solid fa-copy"></i>
                     </button>
@@ -519,17 +517,15 @@ async function createCharacterMemoModal() {
     const memoListHtml = currentMemos.map((memo, index) => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
-                <div class="memo-move-buttons">
+                <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
+                       value="${memo.title || ''}" data-memo-id="${memo.id}">
+                <div class="memo-actions">
                     <button class="memo-move-up-btn" title="위로 이동" data-memo-id="${memo.id}" ${index === 0 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-up"></i>
                     </button>
                     <button class="memo-move-down-btn" title="아래로 이동" data-memo-id="${memo.id}" ${index === currentMemos.length - 1 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
-                </div>
-                <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
-                       value="${memo.title || ''}" data-memo-id="${memo.id}">
-                <div class="memo-actions">
                     <button class="memo-copy-btn" title="내용 복사" data-memo-id="${memo.id}">
                         <i class="fa-solid fa-copy"></i>
                     </button>
