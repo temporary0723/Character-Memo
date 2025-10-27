@@ -320,17 +320,64 @@
     background: rgba(255, 215, 0, 0.8);
 }
 
-/* 태블릿 반응형 디자인 */
-@media (max-width: 950px) {
+/* 중간 크기 태블릿 (768px~950px) */
+@media (max-width: 950px) and (min-width: 769px) {
     .memo-modal-backdrop {
         align-items: flex-start;
-        padding-top: 3vh;
-        padding-bottom: 3vh;
+        padding-top: 8vh;
+        padding-bottom: 8vh;
+    }
+    
+    .memo-modal {
+        width: 90vw;
+        height: 84vh;
+        max-width: none;
+        max-height: none;
+        transform: scale(0.98);
+        position: relative;
+        margin: 0 auto;
+    }
+    
+    .memo-modal.visible {
+        transform: scale(1);
+    }
+    
+    .memo-modal-header {
+        padding: 8px 16px !important;
+    }
+    
+    .memo-modal-body {
+        padding: 16px;
+    }
+    
+    .memo-item {
+        padding: 18px;
+    }
+    
+    .memo-title-input {
+        font-size: 16px;
+    }
+    
+    .memo-actions {
+        gap: 8px;
+    }
+    
+    .memo-content-textarea {
+        min-height: 120px;
+    }
+}
+
+/* 작은 태블릿 (481px~768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+    .memo-modal-backdrop {
+        align-items: flex-start;
+        padding-top: 5vh;
+        padding-bottom: 5vh;
     }
     
     .memo-modal {
         width: 95vw;
-        height: 94vh;
+        height: 90vh;
         max-width: none;
         max-height: none;
         transform: scale(0.98);
