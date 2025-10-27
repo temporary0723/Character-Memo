@@ -154,7 +154,6 @@
 }
 
 .memo-item:hover {
-    border-color: var(--SmartThemeQuoteColor);
     box-shadow: 0 4px 12px var(--black30a);
     transform: translateY(-2px);
 }
@@ -194,7 +193,15 @@
     opacity: 0.6;
 }
 
-/* 메모 삭제 버튼 */
+/* 메모 액션 버튼 컨테이너 */
+.memo-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* 메모 복사 및 삭제 버튼 */
+.memo-copy-btn,
 .memo-delete-btn {
     padding: 8px 10px;
     border: 1px solid var(--SmartThemeBorderColor);
@@ -209,6 +216,13 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.memo-copy-btn:hover {
+    background-color: var(--SmartThemeQuoteColor);
+    color: var(--SmartThemeBlurTintColor);
+    border-color: var(--SmartThemeQuoteColor);
+    transform: scale(1.05);
 }
 
 .memo-delete-btn:hover {
@@ -238,8 +252,6 @@
 
 .memo-content-textarea:focus {
     outline: none;
-    border-color: var(--SmartThemeQuoteColor);
-    box-shadow: 0 0 0 2px rgba(var(--SmartThemeQuoteColorRGB), 0.3);
     background-color: var(--SmartThemeBlurTintColor);
 }
 
@@ -372,6 +384,7 @@
         font-size: 13px;
     }
     
+    .memo-copy-btn,
     .memo-delete-btn {
         min-width: 36px;
         padding: 6px 8px;
@@ -404,6 +417,5 @@
 
 /* 포커스 효과 */
 .memo-item:focus-within {
-    border-color: var(--SmartThemeQuoteColor);
     box-shadow: 0 0 0 2px rgba(var(--SmartThemeQuoteColorRGB), 0.2);
 }

@@ -151,6 +151,41 @@ function updateMemo(memoId, title, content) {
 }
 
 /**
+ * 메모 내용 클립보드에 복사
+ */
+async function copyMemoContent(memoId) {
+    const memo = currentCharacterMemos.find(m => m.id === memoId);
+    if (!memo) return;
+
+    try {
+        // 제목과 내용을 함께 복사
+        const textToCopy = memo.title ? `${memo.title}\n\n${memo.content}` : memo.content;
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            // 최신 Clipboard API 사용
+            await navigator.clipboard.writeText(textToCopy);
+        } else {
+            // 폴백: 임시 textarea 사용
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+        }
+        
+        toastr.success('메모가 클립보드에 복사되었습니다.');
+    } catch (error) {
+        console.error('[CharacterMemo] 클립보드 복사 실패:', error);
+        toastr.error('클립보드 복사에 실패했습니다.');
+    }
+}
+
+/**
  * 메모 삭제
  */
 async function deleteMemo(memoId) {
@@ -198,9 +233,14 @@ function refreshMemoListInModal() {
             <div class="memo-item-header">
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
                        value="${memo.title || ''}" data-memo-id="${memo.id}">
-                <button class="memo-delete-btn" title="삭제" data-memo-id="${memo.id}">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <div class="memo-actions">
+                    <button class="memo-copy-btn" title="내용 복사" data-memo-id="${memo.id}">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="memo-delete-btn" title="삭제" data-memo-id="${memo.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
             <textarea class="memo-content-textarea" placeholder="메모 내용을 입력하세요" 
                       data-memo-id="${memo.id}">${memo.content || ''}</textarea>
@@ -271,6 +311,14 @@ function bindModalEventHandlers() {
         }
     });
     
+    // 메모 복사 버튼
+    currentModal.find('.memo-copy-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const memoId = $(this).data('memo-id');
+        copyMemoContent(memoId);
+    });
+    
     // 메모 삭제 버튼
     currentModal.find('.memo-delete-btn').off('click').on('click', function(e) {
         e.preventDefault();
@@ -295,9 +343,14 @@ async function createCharacterMemoModal() {
             <div class="memo-item-header">
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
                        value="${memo.title || ''}" data-memo-id="${memo.id}">
-                <button class="memo-delete-btn" title="삭제" data-memo-id="${memo.id}">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <div class="memo-actions">
+                    <button class="memo-copy-btn" title="내용 복사" data-memo-id="${memo.id}">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="memo-delete-btn" title="삭제" data-memo-id="${memo.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
             <textarea class="memo-content-textarea" placeholder="메모 내용을 입력하세요" 
                       data-memo-id="${memo.id}">${memo.content || ''}</textarea>
