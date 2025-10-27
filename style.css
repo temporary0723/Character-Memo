@@ -31,6 +31,7 @@
     width: 800px;
     height: 85vh;
     max-width: 95vw;
+    max-height: 95vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -331,6 +332,7 @@
         width: 95vw;
         height: 94vh;
         max-width: none;
+        max-height: 94vh;
         transform: scale(0.98);
         position: relative;
         margin: 0 auto;
@@ -355,6 +357,14 @@
     .memo-title-input {
         font-size: 16px;
     }
+    
+    .memo-actions {
+        gap: 6px;
+    }
+    
+    .memo-content-textarea {
+        min-height: 100px;
+    }
 }
 
 /* 스마트폰 반응형 디자인 */
@@ -367,6 +377,7 @@
     .memo-modal {
         width: 98vw;
         height: 96vh;
+        max-height: 96vh;
         border-radius: 8px;
     }
     
@@ -416,9 +427,13 @@
     
     .memo-copy-btn,
     .memo-delete-btn {
-        min-width: 36px;
+        min-width: 32px;
         padding: 6px 8px;
-        font-size: 14px;
+        font-size: 12px;
+    }
+    
+    .memo-actions {
+        gap: 4px;
     }
 }
 
