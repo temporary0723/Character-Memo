@@ -158,8 +158,8 @@ async function copyMemoContent(memoId) {
     if (!memo) return;
 
     try {
-        // 제목과 내용을 함께 복사
-        const textToCopy = memo.title ? `${memo.title}\n\n${memo.content}` : memo.content;
+        // 내용만 복사
+        const textToCopy = memo.content || '';
         
         if (navigator.clipboard && window.isSecureContext) {
             // 최신 Clipboard API 사용
