@@ -278,6 +278,52 @@ async function deleteMemo(memoId) {
 }
 
 /**
+ * 메모 위로 이동
+ */
+function moveMemoUp(memoId) {
+    const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const index = memos.findIndex(m => m.id === memoId);
+    
+    if (index > 0) {
+        // 배열에서 위치 교환
+        [memos[index - 1], memos[index]] = [memos[index], memos[index - 1]];
+        
+        // 저장
+        if (isGlobalMode) {
+            saveGlobalMemos();
+        } else {
+            saveCharacterMemos();
+        }
+        
+        // 모달 새로고침
+        refreshMemoListInModal();
+    }
+}
+
+/**
+ * 메모 아래로 이동
+ */
+function moveMemoDown(memoId) {
+    const memos = isGlobalMode ? globalMemos : currentCharacterMemos;
+    const index = memos.findIndex(m => m.id === memoId);
+    
+    if (index >= 0 && index < memos.length - 1) {
+        // 배열에서 위치 교환
+        [memos[index], memos[index + 1]] = [memos[index + 1], memos[index]];
+        
+        // 저장
+        if (isGlobalMode) {
+            saveGlobalMemos();
+        } else {
+            saveCharacterMemos();
+        }
+        
+        // 모달 새로고침
+        refreshMemoListInModal();
+    }
+}
+
+/**
  * 글로벌/캐릭터 메모 모드 전환
  */
 function toggleMemoMode() {
@@ -314,9 +360,17 @@ function refreshMemoListInModal() {
     const currentMemos = isGlobalMode ? globalMemos : currentCharacterMemos;
     
     // 새로운 메모 리스트 HTML 생성
-    const memoListHtml = currentMemos.map(memo => `
+    const memoListHtml = currentMemos.map((memo, index) => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
+                <div class="memo-move-buttons">
+                    <button class="memo-move-up-btn" title="위로 이동" data-memo-id="${memo.id}" ${index === 0 ? 'disabled' : ''}>
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <button class="memo-move-down-btn" title="아래로 이동" data-memo-id="${memo.id}" ${index === currentMemos.length - 1 ? 'disabled' : ''}>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
                        value="${memo.title || ''}" data-memo-id="${memo.id}">
                 <div class="memo-actions">
@@ -347,6 +401,10 @@ function refreshMemoListInModal() {
                 저장된 메모가 없습니다.<br>
                 위의 버튼을 클릭하여 새 메모를 추가해보세요.
             </div>
+            <button class="memo-add-button memo-add-button-bottom">
+                <i class="fa-solid fa-plus"></i>
+                <span>새 메모 추가</span>
+            </button>
         `);
     } else {
         modalBody.html(`
@@ -355,6 +413,10 @@ function refreshMemoListInModal() {
                 <span>새 메모 추가</span>
             </button>
             <div class="memo-list">${memoListHtml}</div>
+            <button class="memo-add-button memo-add-button-bottom">
+                <i class="fa-solid fa-plus"></i>
+                <span>새 메모 추가</span>
+            </button>
         `);
     }
     
@@ -368,7 +430,7 @@ function refreshMemoListInModal() {
 function bindModalEventHandlers() {
     if (!currentModal) return;
     
-    // 새 메모 추가 버튼
+    // 새 메모 추가 버튼 (상단과 하단 모두)
     currentModal.find('.memo-add-button').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -421,6 +483,22 @@ function bindModalEventHandlers() {
         const memoId = $(this).data('memo-id');
         deleteMemo(memoId);
     });
+    
+    // 메모 위로 이동 버튼
+    currentModal.find('.memo-move-up-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const memoId = $(this).data('memo-id');
+        moveMemoUp(memoId);
+    });
+    
+    // 메모 아래로 이동 버튼
+    currentModal.find('.memo-move-down-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const memoId = $(this).data('memo-id');
+        moveMemoDown(memoId);
+    });
 }
 
 /**
@@ -438,9 +516,17 @@ async function createCharacterMemoModal() {
     }
     
     const currentMemos = isGlobalMode ? globalMemos : currentCharacterMemos;
-    const memoListHtml = currentMemos.map(memo => `
+    const memoListHtml = currentMemos.map((memo, index) => `
         <div class="memo-item" data-memo-id="${memo.id}">
             <div class="memo-item-header">
+                <div class="memo-move-buttons">
+                    <button class="memo-move-up-btn" title="위로 이동" data-memo-id="${memo.id}" ${index === 0 ? 'disabled' : ''}>
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <button class="memo-move-down-btn" title="아래로 이동" data-memo-id="${memo.id}" ${index === currentMemos.length - 1 ? 'disabled' : ''}>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
                 <input type="text" class="memo-title-input" placeholder="메모 제목을 입력하세요" 
                        value="${memo.title || ''}" data-memo-id="${memo.id}">
                 <div class="memo-actions">
@@ -482,6 +568,10 @@ async function createCharacterMemoModal() {
                            </div>` 
                         : `<div class="memo-list">${memoListHtml}</div>`
                     }
+                    <button class="memo-add-button memo-add-button-bottom">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>새 메모 추가</span>
+                    </button>
                 </div>
             </div>
         </div>
