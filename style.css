@@ -320,66 +320,18 @@
     background: rgba(255, 215, 0, 0.8);
 }
 
-/* 중간 크기 태블릿 (768px~950px) */
-@media (max-width: 950px) and (min-width: 769px) {
+/* 태블릿 반응형 디자인 */
+@media (max-width: 950px) {
     .memo-modal-backdrop {
         align-items: flex-start;
-        padding-top: 8vh;
-        padding-bottom: 8vh;
-    }
-    
-    .memo-modal {
-        width: 90vw;
-        height: 84vh;
-        max-width: none;
-        max-height: none;
-        transform: scale(0.98);
-        position: relative;
-        margin: 0 auto;
-    }
-    
-    .memo-modal.visible {
-        transform: scale(1);
-    }
-    
-    .memo-modal-header {
-        padding: 8px 16px !important;
-    }
-    
-    .memo-modal-body {
-        padding: 16px;
-    }
-    
-    .memo-item {
-        padding: 18px;
-    }
-    
-    .memo-title-input {
-        font-size: 16px;
-    }
-    
-    .memo-actions {
-        gap: 8px;
-    }
-    
-    .memo-content-textarea {
-        min-height: 120px;
-    }
-}
-
-/* 작은 태블릿 (481px~768px) */
-@media (max-width: 768px) and (min-width: 481px) {
-    .memo-modal-backdrop {
-        align-items: flex-start;
-        padding-top: 5vh;
-        padding-bottom: 5vh;
+        padding-top: 3vh;
+        padding-bottom: 3vh;
     }
     
     .memo-modal {
         width: 95vw;
-        height: 90vh;
+        height: 94vh;
         max-width: none;
-        max-height: none;
         transform: scale(0.98);
         position: relative;
         margin: 0 auto;
@@ -414,6 +366,60 @@
     }
 }
 
+/* 중간 크기 화면 (481px~768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+    .memo-modal-backdrop {
+        align-items: flex-start;
+        padding-top: 2vh;
+        padding-bottom: 2vh;
+    }
+    
+    .memo-modal {
+        width: 96vw;
+        height: 96vh;
+        max-width: none;
+        transform: scale(0.98);
+        position: relative;
+        margin: 0 auto;
+    }
+    
+    .memo-modal.visible {
+        transform: scale(1);
+    }
+    
+    .memo-modal-header {
+        padding: 6px 12px !important;
+    }
+    
+    .memo-modal-body {
+        padding: 10px;
+    }
+    
+    .memo-item {
+        padding: 14px;
+    }
+    
+    .memo-title-input {
+        font-size: 15px;
+    }
+    
+    .memo-actions {
+        gap: 5px;
+    }
+    
+    .memo-content-textarea {
+        min-height: 100px;
+        font-size: 13px;
+    }
+    
+    .memo-copy-btn,
+    .memo-delete-btn {
+        min-width: 34px;
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+}
+
 /* 스마트폰 반응형 디자인 */
 @media (max-width: 480px) {
     .memo-modal-backdrop {
@@ -424,7 +430,6 @@
     .memo-modal {
         width: 98vw;
         height: 96vh;
-        max-height: none;
         border-radius: 8px;
     }
     
